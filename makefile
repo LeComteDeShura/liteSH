@@ -1,6 +1,7 @@
-all: bin/help bin/litesh
+all: bin/help bin/litesh 
 
-BUILD_SRC := ./build
+BUILD_SRC := ./build/src
+BUILD_TEST := ./build/test
 
 bin/litesh: $(BUILD_SRC)/main.o $(BUILD_SRC)/client.o $(BUILD_SRC)/server.o $(BUILD_SRC)/func.o
 	gcc  $(BUILD_SRC)/main.o $(BUILD_SRC)/client.o $(BUILD_SRC)/server.o $(BUILD_SRC)/func.o -ldl  -o litesh
@@ -22,3 +23,11 @@ bin/help: $(BUILD_SRC)/help.o
 
 $(BUILD_SRC)/help.o: lib/help.c
 	gcc  -c lib/help.c -o $(BUILD_SRC)/help.o
+
+
+
+run_tests: test_func
+	bin/test_func
+
+clean:
+	rm -rf build/src/*.o build/test/*.o
