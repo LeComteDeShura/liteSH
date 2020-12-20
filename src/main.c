@@ -1,41 +1,9 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-// #include <iostream>
-#include <strings.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/param.h>
-#include <syslog.h>
-#include <sys/resource.h>
-#include <pwd.h>
 #include <sys/prctl.h>
 #include <dlfcn.h>
 
 #include "func.h"
 #include "server.h"
 #include "client.h"
-
-#define PORTNUM 1500
-#define CD 1
-#define EXIT 4
-#define PROGRAM 5
-#define DAEMON 6
-#define SERVER 7
-#define CLIENT 8
-#define WHEREAMI 9
-
-#define CMDSIZE 80
-#define MAXPATH 1000
 
 
 int main (int n, char const *argv[]){
@@ -44,7 +12,7 @@ int main (int n, char const *argv[]){
             void *handle;
             void (*help)(void);
             char *error;
-            handle = dlopen ("../lib/help.so", RTLD_LAZY);
+            handle = dlopen ("lib/help.so", RTLD_LAZY);
             if (!handle) {
                 fputs (dlerror(), stderr);
                 exit(1);
@@ -112,6 +80,9 @@ int main (int n, char const *argv[]){
             case(SERVER):
             {
             // std::cout << "/* message */" << '\n';
+                int fds[2];
+                // char buf2[1000];
+                pipe(fds);
                 pid = fork();
 
                 if (pid < 0)
@@ -119,22 +90,26 @@ int main (int n, char const *argv[]){
 
                 else if (pid == 0) {
 
-                    // struct rlimit flim;
                     // if (getppid() != 1)
                     signal(SIGTTOU, SIG_IGN);
                     signal(SIGTTIN, SIG_IGN);
                     signal(SIGTSTP, SIG_IGN);
 
                     setsid();
-                    prctl(PR_SET_NAME, "myServer");
-                    // std::cout << "\npid: " << getpid() << '\n';
-                    // close(STDIN_FILENO);
-                    // close(STDOUT_FILENO);
-                    // close(STDERR_FILENO);
+                    // close(fds[0]);
+                    // dup(fds[1]);
+                    // char pidServer[] = itoa(getpid());
+                    // write(fds[1], pidServer, 8);
+                    prctl(PR_SET_NAME, "server3000");
+
                     server("123");
 
 
-                } else
+                }
+                // close(fds[1]);
+                // char pidServer[8];
+                // read(fds[0], pidServer, 8);
+                // printf("%s\n", pidServer);
                 break;
             }
             break;
@@ -159,15 +134,15 @@ int main (int n, char const *argv[]){
                     write(1, dirs, sizedir);
                     write(1, "\E[0;39m$ ", 10);
 
-                    char *buf3 = (char*)malloc(1000);
+                    char *ccmd = (char*)malloc(1000);
                     char *result = (char*)malloc(1000);
-                    int ccmdsize = read(0, buf3, CMDSIZE);
-                    buf3[ccmdsize-1] ='\0';
+                    int ccmdsize = read(0, ccmd, CMDSIZE);
+                    ccmd[ccmdsize-1] ='\0';
 
                     int num;
-                    char** argscomm = (char**)malloc(100);
-                    char *cmdbuf = strdup(buf3);
-                    int command = parse_command(cmdbuf, &num, argscomm);
+                    char** cargs = (char**)malloc(100);
+                    char *cmdbuf = strdup(ccmd);
+                    int command = parse_command(cmdbuf, &num, cargs);
 
                     if (command == EXIT) {
                         break;
@@ -176,18 +151,18 @@ int main (int n, char const *argv[]){
                     if (command == CD) {
                         free(dirs);
                         dirs = (char*)malloc(1000);
-                        sizedir = client(buf3, dirs, args[1], ccmdsize);
+                        sizedir = client(ccmd, dirs, args[1], ccmdsize);
                     }
 
                     else{
-                        size = client(buf3, result, args[1], ccmdsize);
+                        size = client(ccmd, result, args[1], ccmdsize);
                         if (size == 0) {
                             continue;
                         }
                         result[size-1] ='\0';
                         printf("%s\n", result);
                     }
-                    free(buf3);
+                    free(ccmd);
                     free(result);
                 }
                 break;
@@ -214,24 +189,26 @@ int main (int n, char const *argv[]){
                     write(2, "shell: cannot fork\n", 19);
 
                 else if (pid == 0) {
-                    args[argc-1] = 0;
-                    struct rlimit flim;
-                    if (getppid() != 1)
-                        signal(SIGTTOU, SIG_IGN);
-                        signal(SIGTTIN, SIG_IGN);
-                        signal(SIGTSTP, SIG_IGN);
+                    argv[n-1] = 0;
+
+                    signal(SIGTTOU, SIG_IGN);
+                    signal(SIGTTIN, SIG_IGN);
+                    signal(SIGTSTP, SIG_IGN);
 
                     setsid();
 
                     close(STDIN_FILENO);
                     close(STDOUT_FILENO);
                     close(STDERR_FILENO);
+
                     execvp(args[0], args);
                 } else
                     break;
 
                 }
+
             case(EXIT):
+                free(args);
                 exit(0);
             }
 

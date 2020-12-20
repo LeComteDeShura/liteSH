@@ -3,15 +3,6 @@
 int parse_command(char* cmdbuf, int *argc, char** arguments){
     *argc = 0;
 
-    // char* token = strtok(cmdbuf, " ");
-    //
-    // while (token != NULL) {
-    //     arguments[*argc] = token;
-    //     token = strtok(NULL, " ");
-    //     (*argc)++;
-    // }
-    // fprintf(stderr, "func1: %s \n", cmdbuf);
-    // char str[] = "Geeks for Geeks";
     char* token;
     char* rest = cmdbuf;
 
@@ -21,9 +12,8 @@ int parse_command(char* cmdbuf, int *argc, char** arguments){
         // token = strtok(NULL, " ");
         (*argc)++;
     }
-    // return (0);
+    
     arguments[*argc] = 0;
-    // fprintf(stderr, "func2: %s %s %s %d \n", cmdbuf, arguments[0], arguments[1], *argc);
 
     if (!strcmp("cd", arguments[0])) {
         return CD;

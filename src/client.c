@@ -24,8 +24,7 @@ int client(char *buf, char* result, char* ip, int size){
     }
 
     /* Создадим виртуальный канал */
-    if (connect (s, (struct sockaddr*)&serv_addr,
-     sizeof(serv_addr)) == -1) {
+    if (connect (s, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1) {
      perror("Ошибка вызова connect()");
      exit(1);
     }
@@ -37,50 +36,7 @@ int client(char *buf, char* result, char* ip, int size){
      perror("Ошибка вызова recv()");
      exit(1);
     }
-    // fflush(NULL);
-    // result[nb-5] = '\0';
-    // std::cout << ;
-    // std::cout << result << " "<<  nb<< '\n';
+
     close(s);
     return nb;
 }
-//
-// int parse_command(char* cmdbuf, int *argc, char** arguments){
-//     *argc = 0;
-//
-//     char* token = strtok(cmdbuf, " ");
-//
-//     while (token != NULL) {
-//         arguments[*argc] = token;
-//         token = strtok(NULL, " ");
-//         (*argc)++;
-//     }
-//
-//
-//
-//     if (!strcmp("cd", arguments[0])) {
-//         return CD;
-//     }
-//
-//     if (!strcmp("whereami", arguments[0])) {
-//         return WHEREAMI;
-//     }
-//
-//     if (!strcmp("server", arguments[0])) {
-//         return SERVER;
-//     }
-//
-//     if (!strcmp("client", arguments[0])) {
-//         return CLIENT;
-//     }
-//     //
-//     if (!strcmp("exit", arguments[0])) {
-//         return EXIT;
-//     }
-//
-//     if (!strcmp("&", arguments[*argc-1])) {
-//         return DAEMON;
-//     }
-//
-//     return PROGRAM;
-// }

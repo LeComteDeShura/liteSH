@@ -36,9 +36,7 @@ void server(char* ip){
         exit(1);
     }
 
-    // fprintf(stderr, "Сервер готов: %s\n pid: %d \n", inet_ntoa(serv_addr.sin_addr), getpid());
-
-
+    // fprintf(stderr, "Сервер готов:
     if (listen(s, 5)==-1) {
         perror("Ошибка вызова listen()");
         exit(1);
@@ -74,6 +72,7 @@ void server(char* ip){
             dup(fds[1]);
             dup2(fds[1], STDERR_FILENO);
             memset(buf, 0, 1000);
+
             while ((nbytes = recv(ns, buf, 1000, 0)) !=0) {
                 close(ns);
                 // fprintf(stderr, "child: %s %d\n", buf, nbytes);
