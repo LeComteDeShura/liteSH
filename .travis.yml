@@ -1,0 +1,14 @@
+language: c
+compiler: gcc
+sudo: require
+
+dist: Focal
+
+os: linux
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+
+script:
+  - make && make test1 && make test2 && make run_tests
